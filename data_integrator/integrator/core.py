@@ -1,16 +1,16 @@
 import pandas as pd
 
-
-raw_file_path = "../../openaq_data.csv" 
+raw_file_path = "../../openaq_data.csv"
+processed_file_path = "../../processed_data.pkl"
 
 print(f'Reading raw file at: {raw_file_path}')
 try:
     data = pd.read_csv(
         raw_file_path,
-        sep=";",  # Specify separator as semicolon
-        header=0,  # The first row contains column names
-        skipinitialspace=True,  # Ignore spaces after separators
-        encoding='utf8'  # Ensure proper encoding for special characters
+        sep=";",  
+        header=0,  
+        skipinitialspace=True,  
+        encoding='utf8'  
     )
     print("Raw file read successfully.")
 except Exception as e:
@@ -22,10 +22,11 @@ print(data.columns)
 # Séparer les coordonnées en latitude et longitude
 coord_data = data['Coordinates'].str.split(',', expand=True)
 if coord_data.shape[1] == 2:
-    # Ajouter latitude et longitude au DataFrame existant sans afficher
     data[['Latitude', 'Longitude']] = coord_data.astype(float)
 else:
-    st.error("Erreur : les coordonnées ne peuvent pas être séparées correctement. Veuillez vérifier le format.")
+    print("Erreur : les coordonnées ne peuvent pas être séparées correctement. Veuillez vérifier le format.")
+    exit(1)
 
-
-
+# Sauvegarder les données traitées dans un fichier pickle
+data.to_pickle(processed_file_path)
+print(f"Données traitées sauvegardées dans {processed_file_path}")

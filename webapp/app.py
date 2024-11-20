@@ -1,6 +1,16 @@
 import streamlit as st
+import pandas as pd
 import pydeck as pdk
-import pandas as pd 
+
+# Charger les données traitées depuis le fichier pickle
+processed_file_path =  "../processed_data.pkl"
+
+try:
+    data = pd.read_pickle(processed_file_path)
+    print("Données chargées avec succès.")
+except Exception as e:
+    st.error(f"Erreur lors du chargement des données traitées : {e}")
+    exit(1)
 
 # Configuration de la navigation
 st.sidebar.title("Navigation")
