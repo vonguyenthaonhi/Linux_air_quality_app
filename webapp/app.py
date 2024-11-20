@@ -43,7 +43,7 @@ if options == "Accueil":
 
 # Page "Carte des polluants"
 elif options == "Carte des polluants":
-    st.title("Carte thermique des polluants avec filtres multiples")
+    st.title("Carte thermique des polluants")
 
 
         # Ajouter les filtres dans la barre latérale
@@ -56,32 +56,27 @@ elif options == "Carte des polluants":
         options=pollutants
     )
 
-    # Filtres pour le pays
+    # Filtres pour les pays (multiple selection or All countries)
     countries = data['Country Label'].unique()
-    selected_country = st.sidebar.selectbox(
-        "Sélectionnez un pays :", 
-        options=countries
+    selected_countries = st.sidebar.multiselect(
+        "Sélectionnez un ou plusieurs pays :", 
+        options=["All"] + list(countries),
+        default=["All"]  # Default to "All" countries selected
     )
 
-    # Filtres pour une date unique
-    selected_date = st.sidebar.date_input(
-        "Sélectionnez une date",
-        value=data['Last Updated'].min().date(),
-        min_value=data['Last Updated'].min().date(),
-        max_value=data['Last Updated'].max().date()
-    )
-
-
-    # Filtrer les données en fonction des sélections
-    filtered_data = data[
-        (data['Pollutant'] == selected_pollutant) &
-        (data['Country Label'] == selected_country) &
-        (data['Last Updated'].dt.date == selected_date)
-    ]
+    if "All" in selected_countries:
+        # If "All" is selected, show data for the selected pollutant across all countries
+        filtered_data = data[data['Pollutant'] == selected_pollutant]
+    else:
+        # Otherwise, filter data for the selected pollutant and countries
+        filtered_data = data[
+            (data['Pollutant'] == selected_pollutant) & 
+            (data['Country Label'].isin(selected_countries))
+        ]
 
     # Message si aucune donnée n'est disponible
     if filtered_data.empty:
-        st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{selected_country}'")
+        st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{selected_countries}'")
     else:
         # Configurer la carte thermique
         heatmap_layer = pdk.Layer(
