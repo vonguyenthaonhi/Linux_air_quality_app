@@ -16,7 +16,7 @@ except Exception as e:
 st.sidebar.title("Navigation")
 options = st.sidebar.radio(
     "Aller à :", 
-    ["Accueil", "Carte des polluants"]
+    ["Accueil", "Carte des polluants", "Tableau de Bord d'Analyse de Pollution"]
 )
 
 # Page d'accueil
@@ -105,3 +105,4 @@ elif options == "Carte des polluants":
 
         # Afficher la carte dans Streamlit
         st.pydeck_chart(deck)
+

@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Définir les chemins des scripts
+# Récupérer le répertoire du script principal
+BASE_DIR=$(dirname "$0")
+
+# Liste des chemins des scripts à exécuter
 scripts=(
-    "../data_collector/bin/run.sh"
-    "../data_processor/bin/run.sh"
-    "../webapp/bin/run.sh"
+    "$BASE_DIR/../data_collector/bin/run.sh"
+    "$BASE_DIR/../data_processor/bin/run.sh"
+    "$BASE_DIR/../webapp/bin/run.sh"
 )
 
 # Exécuter chaque script
@@ -18,4 +21,3 @@ for script in "${scripts[@]}"; do
 done
 
 echo "All scripts executed."
-

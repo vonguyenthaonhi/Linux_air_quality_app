@@ -1,4 +1,7 @@
 #!/bin/bash
 
-echo "Downloading data"
-bash ./get_data.sh
+# Se placer dans le répertoire du script
+cd "$(dirname "$0")"
+
+echo "Downloading data..."
+bash ../get/get_data.sh

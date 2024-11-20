@@ -1,5 +1,7 @@
 #!/bin/bash
 
-cd ../
+# Se placer dans le répertoire parent du script
+cd "$(dirname "$0")/.."
 
-python3 core.py
+echo "Processing data..."
+python3 ../data_processor/core.py
