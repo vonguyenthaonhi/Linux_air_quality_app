@@ -46,24 +46,37 @@ elif options == "Carte des polluants":
     st.title("Carte thermique des polluants avec filtres multiples")
 
 
+        # Ajouter les filtres dans la barre latérale
+    st.sidebar.title("Filtres")
+
     # Filtres pour le type de polluant
     pollutants = data['Pollutant'].unique()
-    selected_pollutant = st.selectbox(
+    selected_pollutant = st.sidebar.selectbox(
         "Sélectionnez un type de polluant :", 
         options=pollutants
     )
 
     # Filtres pour le pays
     countries = data['Country Label'].unique()
-    selected_country = st.selectbox(
+    selected_country = st.sidebar.selectbox(
         "Sélectionnez un pays :", 
         options=countries
     )
 
+    # Filtres pour une date unique
+    selected_date = st.sidebar.date_input(
+        "Sélectionnez une date",
+        value=data['Last Updated'].min().date(),
+        min_value=data['Last Updated'].min().date(),
+        max_value=data['Last Updated'].max().date()
+    )
+
+
     # Filtrer les données en fonction des sélections
     filtered_data = data[
         (data['Pollutant'] == selected_pollutant) &
-        (data['Country Label'] == selected_country)
+        (data['Country Label'] == selected_country) &
+        (data['Last Updated'].dt.date == selected_date)
     ]
 
     # Message si aucune donnée n'est disponible
