@@ -16,11 +16,11 @@ except Exception as e:
 st.sidebar.title("Navigation")
 options = st.sidebar.radio(
     "Aller à :", 
-    ["Accueil", "Carte des polluants", "Tableau de Bord d'Analyse de Pollution"]
+    ["🏡 Accueil",  "ℹ️ Info du moment", "🗺️ Carte des polluants"]
 )
 
 # Page d'accueil
-if options == "Accueil":
+if options == "🏡 Accueil":
     st.title("Bienvenue sur l'application de visualisation des polluants 🌍")
     st.markdown("""
         Cette application interactive vous permet d'explorer les niveaux de pollution dans différentes régions. 
@@ -41,111 +41,24 @@ if options == "Accueil":
         **Commencez dès maintenant en sélectionnant "Carte des polluants" dans la barre latérale.** 🚀
     """)
 
-# Page "Carte des polluants"
-elif options == "Carte des polluants":
-    st.title("Carte thermique des polluants")
-
-
-        # Ajouter les filtres dans la barre latérale
-    st.sidebar.title("Filtres")
-
-    # Filtres pour le type de polluant
-    pollutants = data['Pollutant'].unique()
-    selected_pollutant = st.sidebar.selectbox(
-        "Sélectionnez un type de polluant :", 
-        options=pollutants
+elif options == "ℹ️ Info du moment":
+    st.subheader("Comme vous le savez, nos données sont régulièrement mises à jour. 📝")
+    st.markdown(
+        "<p style='font-size:16px;'> Voici la ville la plus et la moins polluée, avec les informations les plus récentes!</p>",
+        unsafe_allow_html=True
     )
+    st.divider()
 
-    # Filtres pour les pays (multiple selection or All countries)
-    countries = data['Country Label'].unique()
-    selected_countries = st.sidebar.multiselect(
-        "Sélectionnez un ou plusieurs pays :", 
-        options=["All"] + list(countries),
-        default=["All"]  # Default to "All" countries selected
-    )
 
-    if "All" in selected_countries:
-        # If "All" is selected, show data for the selected pollutant across all countries
-        filtered_data = data[data['Pollutant'] == selected_pollutant]
-    else:
-        # Otherwise, filter data for the selected pollutant and countries
-        filtered_data = data[
-            (data['Pollutant'] == selected_pollutant) & 
-            (data['Country Label'].isin(selected_countries))
-        ]
-
-    # Message si aucune donnée n'est disponible
-    if filtered_data.empty:
-        st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{selected_countries}'")
-    else:
-        # récupérer les villes uniques
-        cities = filtered_data['City'].dropna().unique()
-        cities_with_none = ['None'] + list(cities)
-        selected_city = st.sidebar.selectbox("Sélectionnez une ville :", options=cities_with_none)
-
-        # Configurer la carte thermique
-        heatmap_layer = pdk.Layer(
-            "HeatmapLayer",
-            data=filtered_data,
-            get_position=["Longitude", "Latitude"],
-            get_weight="Value",
-            radiusPixels=60,
-            opacity=0.8,
-        )
-
-        # Configurer la vue initiale
-        view_state = pdk.ViewState(
-            latitude=filtered_data["Latitude"].mean(),
-            longitude=filtered_data["Longitude"].mean(),
-            zoom=5,
-            pitch=50,
-        )
-
-        # Configurer la carte Pydeck
-        deck = pdk.Deck(
-            layers=[heatmap_layer],
-            initial_view_state=view_state,
-            tooltip={"html": "<b>Valeur:</b> {value}", "style": {"color": "white"}},
-        )
-
-        # Afficher la carte dans Streamlit
-        st.pydeck_chart(deck)
-
-        
-        # les données pour la ville sélectionnée
-        city_data = filtered_data[filtered_data['City'] == selected_city]
-
-        # Calculer le classement des villes en fonction des niveaux de pollution moyens
-        city_pollution = (
-            filtered_data.groupby("City")["Value"]
-            .mean()
-            .sort_values(ascending=False)
-            .reset_index()
-        )
-        city_pollution["Rang"] = city_pollution.index + 1  # Ajouter le classement
-
-        # Trouver le rang de la ville sélectionnée
-        if not city_data.empty:
-            selected_city_rank = city_pollution[city_pollution["City"] == selected_city]
-
-            # Afficher les résultats
-            st.subheader(f"Classement des villes pour le polluant : {selected_pollutant}")
-            st.write(f"La ville **{selected_city}** est classée **#{selected_city_rank['Rang'].values[0]}** avec une pollution moyenne de **{selected_city_rank['Value'].values[0]:.2f}**.")
-
-            # Afficher 10 premiers
-            st.table(city_pollution.head(10))
-
-elif options == "Tableau de Bord d'Analyse de Pollution":
 # Afficher un filtre pour le type de polluant
-    st.sidebar.title("Filtres")
 
     # Filtres pour le type de polluant
     pollutants = data['Pollutant'].unique()
-    selected_pollutant = st.sidebar.selectbox(
+    selected_pollutant = st.selectbox(
         "Sélectionnez un type de polluant :", 
         options=pollutants
     )
-
+    st.divider()
     # Filtrer les données en fonction du polluant sélectionné
     filtered_data = data[data['Pollutant'] == selected_pollutant]
 
@@ -167,8 +80,6 @@ elif options == "Tableau de Bord d'Analyse de Pollution":
 
     # Affichage du tableau de bord
     if selected_pollutant:
-        st.header(f"Tableau de Bord d'Analyse du: {selected_pollutant}")
-        st.divider()
         st.subheader("Destination avec la Pollution Maximale")
         data_max = {
             "Métrique": ["Ville", "Pays", "Pollution Maximale", "Pollution Minimale", "Pollution Moyenne"],
@@ -198,3 +109,111 @@ elif options == "Tableau de Bord d'Analyse de Pollution":
         }
         data_min = pd.DataFrame(data_min)
         st.table(data_min)
+
+
+# Page "Carte des polluants"
+elif options == "🗺️ Carte des polluants":
+    st.subheader("Vous avez une idée du pays où passer votre séjour? 🤔")
+
+    st.markdown(
+        "<p style='font-size:16px;'>Consultez notre carte mondiale pour visualiser les niveaux de pollution par région.</p>",
+        unsafe_allow_html=True
+    )
+    st.divider()
+
+    # Créer des colonnes pour afficher les filtres côte à côte
+    col1, col2 = st.columns(2)
+
+    # Filtres pour le type de polluant dans la première colonne
+    with col1:
+        pollutants = data['Pollutant'].unique()
+        selected_pollutant = st.selectbox(
+            "Sélectionnez un type de polluant :", 
+            options=pollutants
+        )
+
+    # Filtres pour les pays dans la deuxième colonne
+    with col2:
+        countries = data['Country Label'].unique()
+        selected_countries = st.multiselect(
+            "Sélectionnez un ou plusieurs pays :", 
+            options=["All"] + list(countries),
+            default=["All"]  # Default to "All" countries selected
+        )
+
+    if "All" in selected_countries:
+        # If "All" is selected, show data for the selected pollutant across all countries
+        filtered_data = data[data['Pollutant'] == selected_pollutant]
+    else:
+        # Otherwise, filter data for the selected pollutant and countries
+        filtered_data = data[
+            (data['Pollutant'] == selected_pollutant) & 
+            (data['Country Label'].isin(selected_countries))
+        ]
+
+
+    # Message si aucune donnée n'est disponible
+    if filtered_data.empty:
+        st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{selected_countries}'")
+    else:
+        # Configurer la carte thermique
+        heatmap_layer = pdk.Layer(
+            "HeatmapLayer",
+            data=filtered_data,
+            get_position=["Longitude", "Latitude"],
+            get_weight="Value",
+            radiusPixels=60,
+            opacity=0.8,
+        )
+
+        # Configurer la vue initiale
+        view_state = pdk.ViewState(
+            latitude=filtered_data["Latitude"].mean(),
+            longitude=filtered_data["Longitude"].mean(),
+            zoom=5,
+            pitch=50,
+        )
+
+        # Configurer la carte Pydeck
+        deck = pdk.Deck(
+            layers=[heatmap_layer],
+            initial_view_state=view_state,
+            tooltip={"html": "<b>Valeur:</b> {value}", "style": {"color": "white"}},
+        )
+
+        # Afficher la carte dans Streamlit
+        st.pydeck_chart(deck)
+        st.divider()
+
+        st.subheader("Et si vous avez déjà une idée de la ville...")
+        st.markdown("<p style='font-size:16px;'>Choisissez-la ici pour en savoir plus! 👇</p>",
+        unsafe_allow_html=True
+    )
+
+        cities = filtered_data['City'].dropna().unique()
+        cities_with_none = ['None'] + list(cities)
+        selected_city = st.selectbox("Sélectionnez une ville :", options=cities)
+
+        # les données pour la ville sélectionnée
+        city_data = filtered_data[filtered_data['City'] == selected_city]
+
+        # Calculer le classement des villes en fonction des niveaux de pollution moyens
+        city_pollution = (
+            filtered_data.groupby("City")["Value"]
+            .mean()
+            .sort_values(ascending=False)
+            .reset_index()
+        )
+        city_pollution["Rang"] = city_pollution.index + 1  # Ajouter le classement
+
+        # Trouver le rang de la ville sélectionnée
+        if not city_data.empty:
+            selected_city_rank = city_pollution[city_pollution["City"] == selected_city]
+            st.divider()
+            # Afficher les résultats
+            st.subheader(f"Classement des villes pour le polluant : {selected_pollutant}")
+            st.write(f"La ville **{selected_city}** est classée **#{selected_city_rank['Rang'].values[0]}** avec une pollution moyenne de **{selected_city_rank['Value'].values[0]:.2f}**.")
+
+            # Afficher le classement
+            st.table(city_pollution)
+
