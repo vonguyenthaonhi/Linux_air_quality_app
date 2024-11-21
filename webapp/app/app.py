@@ -45,7 +45,8 @@ if options == "Accueil":
 elif options == "Carte des polluants":
     st.title("Carte thermique des polluants")
 
-    # Ajouter les filtres dans la barre latérale
+
+        # Ajouter les filtres dans la barre latérale
     st.sidebar.title("Filtres")
 
     # Filtres pour le type de polluant
@@ -77,11 +78,41 @@ elif options == "Carte des polluants":
     if filtered_data.empty:
         st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{selected_countries}'")
     else:
-        # Récupérer les villes uniques
+        # récupérer les villes uniques
         cities = filtered_data['City'].dropna().unique()
-        selected_city = st.sidebar.selectbox("Sélectionnez une ville :", options=cities)
+        cities_with_none = ['None'] + list(cities)
+        selected_city = st.sidebar.selectbox("Sélectionnez une ville :", options=cities_with_none)
 
-        # Les données pour la ville sélectionnée
+        # Configurer la carte thermique
+        heatmap_layer = pdk.Layer(
+            "HeatmapLayer",
+            data=filtered_data,
+            get_position=["Longitude", "Latitude"],
+            get_weight="Value",
+            radiusPixels=60,
+            opacity=0.8,
+        )
+
+        # Configurer la vue initiale
+        view_state = pdk.ViewState(
+            latitude=filtered_data["Latitude"].mean(),
+            longitude=filtered_data["Longitude"].mean(),
+            zoom=5,
+            pitch=50,
+        )
+
+        # Configurer la carte Pydeck
+        deck = pdk.Deck(
+            layers=[heatmap_layer],
+            initial_view_state=view_state,
+            tooltip={"html": "<b>Valeur:</b> {value}", "style": {"color": "white"}},
+        )
+
+        # Afficher la carte dans Streamlit
+        st.pydeck_chart(deck)
+
+        
+        # les données pour la ville sélectionnée
         city_data = filtered_data[filtered_data['City'] == selected_city]
 
         # Calculer le classement des villes en fonction des niveaux de pollution moyens
@@ -97,45 +128,12 @@ elif options == "Carte des polluants":
         if not city_data.empty:
             selected_city_rank = city_pollution[city_pollution["City"] == selected_city]
 
-        # Diviser l'affichage en colonnes
-        col1, col2 = st.columns([2, 1])
-
-        # Afficher la carte dans la première colonne
-        with col1:
-            # Configurer la carte thermique
-            heatmap_layer = pdk.Layer(
-                "HeatmapLayer",
-                data=filtered_data,
-                get_position=["Longitude", "Latitude"],
-                get_weight="Value",
-                radiusPixels=60,
-                opacity=0.8,
-            )
-
-            # Configurer la vue initiale
-            view_state = pdk.ViewState(
-                latitude=filtered_data["Latitude"].mean(),
-                longitude=filtered_data["Longitude"].mean(),
-                zoom=5,
-                pitch=50,
-            )
-
-            # Configurer la carte Pydeck
-            deck = pdk.Deck(
-                layers=[heatmap_layer],
-                initial_view_state=view_state,
-                tooltip={"html": "<b>Valeur:</b> {value}", "style": {"color": "white"}},
-            )
-
-            st.pydeck_chart(deck)
-
-        # Afficher le tableau dans la deuxième colonne
-        with col2:
+            # Afficher les résultats
             st.subheader(f"Classement des villes pour le polluant : {selected_pollutant}")
-            if not city_data.empty:
-                st.write(f"La ville **{selected_city}** est classée **#{selected_city_rank['Rang'].values[0]}** avec une pollution moyenne de **{selected_city_rank['Value'].values[0]:.2f}**.")
-            st.table(city_pollution.head(10))
+            st.write(f"La ville **{selected_city}** est classée **#{selected_city_rank['Rang'].values[0]}** avec une pollution moyenne de **{selected_city_rank['Value'].values[0]:.2f}**.")
 
+            # Afficher 10 premiers
+            st.table(city_pollution.head(10))
 
 elif options == "Tableau de Bord d'Analyse de Pollution":
 # Afficher un filtre pour le type de polluant
