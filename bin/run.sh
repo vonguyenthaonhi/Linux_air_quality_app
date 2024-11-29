@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # Récupérer le répertoire du script principal
-BASE_DIR=$(dirname "$0")
+BASE_DIR=$(cd "$(dirname "$0")" && pwd)
+echo "Chemin base: $BASE_DIR"
 
 INSTALL_SCRIPT="$BASE_DIR/../install.sh"
+echo "Chemin recherché pour install.sh : $INSTALL_SCRIPT"
 
 if [[ -x "$INSTALL_SCRIPT" ]]; then
     echo "Running install.sh..."
