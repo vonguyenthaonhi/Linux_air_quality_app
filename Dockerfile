@@ -28,7 +28,7 @@ RUN chmod +x /app/bin/run.sh \
 RUN bash /app/install.sh
 
 # Exposer le port 8501 (utilisé par Streamlit)
-EXPOSE 8501
+EXPOSE 5001
 
 # Définir le point d'entrée par défaut qui exécute le script 'run.sh' du répertoire bin
 CMD ["bash", "/app/bin/run.sh"]

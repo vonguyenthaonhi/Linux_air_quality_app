@@ -17,4 +17,4 @@ fi
 
 # Lancer app.py avec Streamlit
 echo "Lancement de app.py dans app..."
-python -m streamlit run app.py --server.port 8501
+python -m streamlit run app.py --server.port 5001
