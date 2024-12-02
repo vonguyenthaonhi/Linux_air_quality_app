@@ -2,7 +2,7 @@ import pandas as pd
 
 # Chemins des fichiers
 raw_file_path = "../openaq_data.csv"
-processed_file_path = "../../processed_data.pkl"
+processed_file_path = "../processed_data.csv"
 
 print(f'Getting data file at: {raw_file_path}')
 
@@ -92,7 +92,8 @@ data[['Value', 'Unit']] = data.apply(
 
 # Sauvegarder les données traitées dans un fichier pickle
 try:
-    data.to_pickle(processed_file_path)
+    # Sauvegarder en CSV
+    data.to_csv(processed_file_path, index=False)
     print(f"Données traitées sauvegardées dans {processed_file_path}")
 except Exception as e:
     print(f"Erreur lors de la sauvegarde des données traitées : {e}")

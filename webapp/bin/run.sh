@@ -16,5 +16,6 @@ if ! command -v streamlit &> /dev/null; then
 fi
 
 # Lancer app.py avec Streamlit
-echo "Lancement de app.py dans app..."
+echo "@@@@@@@@@@@@@@@@ Run application... @@@@@@@@@@@@@@@@"
+
 python -m streamlit run app.py --server.port 5001

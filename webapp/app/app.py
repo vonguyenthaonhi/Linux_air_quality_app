@@ -3,10 +3,10 @@ import pandas as pd
 import pydeck as pdk
 
 # Charger les données traitées depuis le fichier pickle
-processed_file_path =  "../../processed_data.pkl"
+processed_file_path =  "../../processed_data.csv"
 
 try:
-    data = pd.read_pickle(processed_file_path)
+    data = pd.read_csv(processed_file_path)
     print("Données chargées avec succès.")
 except Exception as e:
     st.error(f"Erreur lors du chargement des données traitées : {e}")
