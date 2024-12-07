@@ -1,8 +1,13 @@
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
+import wikipedia
+import urllib.parse
+import requests
+from PIL import Image
+from io import BytesIO
 
-# Charger les données traitées depuis le fichier pickle
+
 processed_file_path =  "../../processed_data.csv"
 
 try:
@@ -11,16 +16,55 @@ try:
 except Exception as e:
     st.error(f"Erreur lors du chargement des données traitées : {e}")
     exit(1)
+    
+    
+def set_png_as_page_bg_from_url(image_url):
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background: url("{image_url}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center; /* Centrer horizontalement */
+            align-items: flex-start; /* Positionner le conteneur en bas */
+            padding-top: 10vh; /* Descendre le conteneur de 10% de la hauteur de la page */
+            height: 100vh; /* Prendre toute la hauteur de la page */
+        }}
+        .block-container {{
+            background-color: rgba(255, 255, 255, 0.85); /* Fond semi-transparent */
+            padding: 2rem;
+            border-radius: 15px; /* Bords arrondis */
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); /* Légère ombre */
+            max-width: 900px; /* Largeur maximale plus large */
+            text-align: justify; /* Texte justifié */
+            line-height: 1.6; /* Espacement entre les lignes */
+        }}
+        h1 {{
+            color: #2E8B57;  /* Couleur verte pour le titre */
+            margin-bottom: 1rem;
+            text-align: center; /* Centrer le titre */
+        }}
+        </style>
+    """, unsafe_allow_html=True)
 
-# Configuration de la navigation
+
+background_image_url = "https://img.freepik.com/free-photo/top-view-camera-with-hat-compass_23-2148315771.jpg?t=st=1733214407~exp=1733218007~hmac=8c9dd03afdfa4bf48c121c31400e74aa9fd7d930534d056c6ab9f6da6e86a731&w=2000"
+
+
 st.sidebar.title("Navigation")
 options = st.sidebar.radio(
     "Aller à :", 
-    ["🏡 Accueil",  "ℹ️ Info du moment", "🗺️ Carte des polluants"]
+    ["🏡 Accueil",  "ℹ️ Info du moment", "🗺️ Carte des polluants","📍 Infos touristiques de la ville"]
 )
 
-# Page d'accueil
+##### Page d'accueil
+
 if options == "🏡 Accueil":
+    set_png_as_page_bg_from_url(background_image_url)
+
+    
     st.title("Bienvenue sur l'application de visualisation des polluants 🌍")
     st.markdown("""
         Cette application interactive vous permet d'explorer les niveaux de pollution dans différentes régions. 
@@ -49,20 +93,15 @@ elif options == "ℹ️ Info du moment":
     )
     st.divider()
 
-
-# Afficher un filtre pour le type de polluant
-
-    # Filtres pour le type de polluant
     pollutants = data['Pollutant'].unique()
     selected_pollutant = st.selectbox(
         "Sélectionnez un type de polluant :", 
         options=pollutants
     )
     st.divider()
-    # Filtrer les données en fonction du polluant sélectionné
+
     filtered_data = data[data['Pollutant'] == selected_pollutant]
 
-    # Effectuer l'agrégation sur les données filtrées
     statistiques_locations = (
         filtered_data.groupby(['City', 'Country Label'])
         .agg(
@@ -74,11 +113,10 @@ elif options == "ℹ️ Info du moment":
         .sort_values(by='avg_pollution', ascending=False)
     )
 
-    # Pollution maximale et minimale
     pollution_maximale = statistiques_locations.iloc[0]
     pollution_minimale = statistiques_locations.iloc[-1]
 
-    # Affichage du tableau de bord
+
     if selected_pollutant:
         st.subheader("Destination avec la Pollution Maximale")
         data_max = {
@@ -111,7 +149,8 @@ elif options == "ℹ️ Info du moment":
         st.table(data_min)
 
 
-# Page "Carte des polluants"
+##### Page "Carte des polluants"
+
 elif options == "🗺️ Carte des polluants":
     st.subheader("Vous avez une idée du pays où passer votre séjour? 🤔")
 
@@ -121,43 +160,45 @@ elif options == "🗺️ Carte des polluants":
     )
     st.divider()
 
-    # Créer des colonnes pour afficher les filtres côte à côte
     col1, col2 = st.columns(2)
 
-    # Filtres pour le type de polluant dans la première colonne
     with col1:
-        pollutants = data['Pollutant'].unique()
-        selected_pollutant = st.selectbox(
-            "Sélectionnez un type de polluant :", 
-            options=pollutants
-        )
-
-    # Filtres pour les pays dans la deuxième colonne
-    with col2:
-        countries = data['Country Label'].unique()
+        countries = sorted(data['Country Label'].unique())
         selected_countries = st.multiselect(
-            "Sélectionnez un ou plusieurs pays :", 
+            "Sélectionnez un ou plusieurs pays :",
             options=["All"] + list(countries),
-            default=["All"]  # Default to "All" countries selected
+            default=["All"]  
         )
 
-    if "All" in selected_countries:
-        # If "All" is selected, show data for the selected pollutant across all countries
-        filtered_data = data[data['Pollutant'] == selected_pollutant]
-    else:
-        # Otherwise, filter data for the selected pollutant and countries
-        filtered_data = data[
-            (data['Pollutant'] == selected_pollutant) & 
-            (data['Country Label'].isin(selected_countries))
-        ]
+    with col2:
+        if "All" in selected_countries:
+            pollutants = sorted(data['Pollutant'].unique())
+        else:
+            filtered_data_for_countries = data[data['Country Label'].isin(selected_countries)]
+            pollutants = sorted(filtered_data_for_countries['Pollutant'].unique())
 
+        if not pollutants:
+            st.warning("Aucun polluant disponible pour le(s) pays sélectionné(s).")
+            selected_pollutant = None
+        else:
+            selected_pollutant = st.selectbox(
+                "Sélectionnez un type de polluant :",
+                options=pollutants  
+            )
 
-    # Message si aucune donnée n'est disponible
-    if filtered_data.empty:
-        st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{selected_countries}'")
-    else:
-        # Configurer la carte thermique
-        heatmap_layer = pdk.Layer(
+    if selected_pollutant:
+        if "All" in selected_countries:
+            filtered_data = data[data['Pollutant'] == selected_pollutant]
+        else:
+            filtered_data = data[
+                (data['Pollutant'] == selected_pollutant) &
+                (data['Country Label'].isin(selected_countries))
+            ]
+
+        if filtered_data.empty:
+            st.warning(f"Aucune donnée disponible pour '{selected_pollutant}' dans '{', '.join(selected_countries)}'.")
+        else:
+            heatmap_layer = pdk.Layer(
             "HeatmapLayer",
             data=filtered_data,
             get_position=["Longitude", "Latitude"],
@@ -166,7 +207,6 @@ elif options == "🗺️ Carte des polluants":
             opacity=0.8,
         )
 
-        # Configurer la vue initiale
         view_state = pdk.ViewState(
             latitude=filtered_data["Latitude"].mean(),
             longitude=filtered_data["Longitude"].mean(),
@@ -174,14 +214,12 @@ elif options == "🗺️ Carte des polluants":
             pitch=50,
         )
 
-        # Configurer la carte Pydeck
         deck = pdk.Deck(
             layers=[heatmap_layer],
             initial_view_state=view_state,
             tooltip={"html": "<b>Valeur:</b> {value}", "style": {"color": "white"}},
         )
 
-        # Afficher la carte dans Streamlit
         st.pydeck_chart(deck)
         st.divider()
 
@@ -190,30 +228,110 @@ elif options == "🗺️ Carte des polluants":
         unsafe_allow_html=True
     )
 
-        cities = filtered_data['City'].dropna().unique()
+        cities = sorted(filtered_data['City'].dropna().unique())
         cities_with_none = ['None'] + list(cities)
         selected_city = st.selectbox("Sélectionnez une ville :", options=cities)
+        st.session_state["selected_city"] = selected_city  # Stocke la ville sélectionnée
+        st.session_state["selected_country"] = selected_countries[0] if selected_countries else None
 
-        # les données pour la ville sélectionnée
+
         city_data = filtered_data[filtered_data['City'] == selected_city]
 
-        # Calculer le classement des villes en fonction des niveaux de pollution moyens
         city_pollution = (
             filtered_data.groupby("City")["Value"]
             .mean()
             .sort_values(ascending=False)
             .reset_index()
         )
-        city_pollution["Rang"] = city_pollution.index + 1  # Ajouter le classement
+        city_pollution["Rang"] = city_pollution.index + 1  
 
-        # Trouver le rang de la ville sélectionnée
+
         if not city_data.empty:
             selected_city_rank = city_pollution[city_pollution["City"] == selected_city]
             st.divider()
-            # Afficher les résultats
             st.subheader(f"Classement des villes pour le polluant : {selected_pollutant}")
             st.write(f"La ville **{selected_city}** est classée **#{selected_city_rank['Rang'].values[0]}** avec une pollution moyenne de **{selected_city_rank['Value'].values[0]:.2f}**.")
 
-            # Afficher le classement
             st.table(city_pollution)
+            
+##### Page Infos touristiques de la ville"
 
+elif options == "📍 Infos touristiques de la ville":
+    st.subheader("Envie d'en savoir plus sur la ville sélectionnée ? 🌍")
+
+    st.markdown(
+        "<p style='font-size:16px;'>Découvrez des informations touristiques sur la ville que vous avez sélectionnée grâce à Wikipédia et d'autres services interactifs.</p>",
+        unsafe_allow_html=True
+    )
+    st.divider()
+
+    selected_city = st.session_state.get("selected_city", None)
+    selected_country = st.session_state.get("selected_country", None)
+
+    if selected_city and selected_country:
+        st.write(f"Ville sélectionnée : **{selected_city}** ({selected_country})")
+
+        try:
+            search_query = f"{selected_city}, {selected_country}"
+
+            try:
+                summary = wikipedia.summary(search_query, sentences=3, auto_suggest=True)
+                page = wikipedia.page(search_query)
+            except (wikipedia.exceptions.DisambiguationError, wikipedia.exceptions.PageError):
+                summary = wikipedia.summary(selected_city, sentences=3, auto_suggest=True)
+                page = wikipedia.page(selected_city)
+
+            keywords = ["landmark", "skyline", "view", "monument", "tourism", "architecture", "attraction"]
+            exclusion_keywords = ["flag", "logo", "map", "symbol"]
+            filtered_images = [
+                img for img in page.images
+                if any(keyword in img.lower() for keyword in keywords)
+                and not any(keyword in img.lower() for keyword in exclusion_keywords)
+            ]
+
+            
+            def is_high_resolution(image_url):
+                try:
+                    response = requests.get(image_url)
+                    image = Image.open(BytesIO(response.content))
+                    width, height = image.size
+                    return width > 500 and height > 300
+                except Exception:
+                    return False
+
+            high_res_images = [img for img in filtered_images if is_high_resolution(img)]
+
+            if high_res_images:
+                st.image(high_res_images[0], caption=f"Image emblématique de {selected_city}", use_container_width=True)
+            elif filtered_images:
+                st.image(filtered_images[0], caption=f"Image de {selected_city}", use_container_width=True)
+            else:
+                pass
+
+
+            st.markdown(f"### À propos de {selected_city}")
+            st.write(summary)
+
+            st.markdown(f"[🌐 Lire l'article complet sur Wikipédia]({page.url})")
+            
+
+            city_encoded = urllib.parse.quote(selected_city)
+            country_encoded = urllib.parse.quote(selected_country)
+
+            st.markdown(f"""
+            ### Planifiez votre voyage à {selected_city}
+            - [Booking.com](https://www.booking.com/searchresults.html?ss={city_encoded})
+            - [TripAdvisor](https://www.tripadvisor.com/Search?q={city_encoded})
+            - [Rome2Rio](https://www.rome2rio.com/s/{city_encoded})
+            """)
+
+            st.markdown(f"[🎥 Regardez des vidéos touristiques sur YouTube](https://www.youtube.com/results?search_query={city_encoded}+{country_encoded}+tourism)")
+
+        except wikipedia.exceptions.PageError:
+            st.warning(f"Il n'y a pas de page Wikipédia pour **{selected_city}**.")
+        except wikipedia.exceptions.DisambiguationError as e:
+            st.warning(f"La recherche pour **{selected_city}** a renvoyé plusieurs résultats. Soyez plus précis.")
+        except Exception as e:
+            st.warning("Une erreur s'est produite. Veuillez réessayer avec une autre ville.")
+    else:
+        st.warning("Veuillez d'abord sélectionner une ville et un pays dans la page précédente.")
