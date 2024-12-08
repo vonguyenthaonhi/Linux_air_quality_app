@@ -65,24 +65,32 @@ if options == "🏡 Accueil":
     set_png_as_page_bg_from_url(background_image_url)
 
     
-    st.title("Bienvenue sur l'application de visualisation des polluants 🌍")
+    st.title("Bienvenue sur ClimAventure 🌍")
     st.markdown("""
-        Cette application interactive vous permet d'explorer les niveaux de pollution dans différentes régions. 
-        Voici ce que vous pouvez faire :
-        
-        - **Carte des polluants** : Visualisez les polluants tels que NO2, CO, SO2 ou PM2.5 sur une carte thermique.
-        - **Filtres dynamiques** : Sélectionnez un type de polluant et un pays pour ajuster la visualisation.
-        
-        ### Objectifs de l'application
-        - Fournir une vue d'ensemble des données sur la qualité de l'air.
-        - Identifier les zones les plus affectées par la pollution.
-        - Aider les chercheurs et décideurs à mieux comprendre les impacts environnementaux.
+        ClimAventure est votre compagnon idéal pour découvrir le monde tout en restant informé sur la qualité de l'air. 
+        Grâce à cette application interactive, vous pouvez explorer les niveaux de pollution des villes tout en accédant à des informations touristiques essentielles.
 
-        ### Instructions
-        - Naviguez via la barre latérale pour accéder aux fonctionnalités.
-        - Sélectionnez vos filtres pour personnaliser l'affichage.
+        ### Fonctionnalités principales :
+        
+        - **Niveaux de pollution** : Obtenez des données détaillées sur la qualité de l'air (NO2, CO, SO2, PM2.5) pour n'importe quelle ville.
+        - **Informations sur les villes** : Découvrez l'histoire, les faits marquants et les monuments emblématiques grâce à un résumé interactif tiré de Wikipédia.
+        - **Planifiez votre voyage** : Accédez directement à des outils pratiques pour organiser votre séjour :
+            - Liens vers Booking.com pour réserver votre hébergement.
+            - Guides et avis sur TripAdvisor.
+            - Calculs d'itinéraires via Rome2Rio.
+            - Suggestions de vidéos touristiques sur YouTube.
 
-        **Commencez dès maintenant en sélectionnant "Carte des polluants" dans la barre latérale.** 🚀
+        ### Objectifs de ClimAventure :
+        - Permettre une planification de voyage éclairée en prenant en compte les facteurs environnementaux.
+        - Fournir une vue complète sur la qualité de l'air et l'attractivité des villes.
+        - Faciliter vos déplacements et séjours avec des outils simples et directs.
+
+        ### Comment utiliser l'application ?
+        1. **Carte des polluants** : Explorez les niveaux de pollution dans les régions ou villes de votre choix.
+        2. **Infos sur les villes** : Sélectionnez une ville pour en apprendre davantage et accéder à des services liés à la planification.
+        3. **Commencez votre aventure** : Faites vos choix et laissez ClimAventure vous guider !
+
+        **Lancez votre prochaine aventure dès maintenant avec ClimAventure !** 🚀
     """)
 
 elif options == "ℹ️ Info du moment":
@@ -257,7 +265,7 @@ elif options == "🗺️ Carte des polluants":
 ##### Page Infos touristiques de la ville"
 
 elif options == "📍 Infos touristiques de la ville":
-    st.subheader("Envie d'en savoir plus sur la ville sélectionnée ? 🌍")
+    st.subheader("Envie d'en savoir plus sur la ville sélectionnée ? 🏙️")
 
     st.markdown(
         "<p style='font-size:16px;'>Découvrez des informations touristiques sur la ville que vous avez sélectionnée grâce à Wikipédia et d'autres services interactifs.</p>",

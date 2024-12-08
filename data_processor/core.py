@@ -1,26 +1,41 @@
 import pandas as pd
 
-# Chemins des fichiers
-raw_file_path = "../openaq_data.csv"
+##### Importation des bases
+
+raw_path_air = "../openaq_data.csv"
+world_cities_path = "../world_cities.csv"
 processed_file_path = "../processed_data.csv"
 
-print(f'Getting data file at: {raw_file_path}')
+print(f'Téléchargement de la base de données air quality à: {raw_path_air}')
 
-# Lire le fichier brut
+
 try:
     data = pd.read_csv(
-        raw_file_path,
+        raw_path_air,
         sep=";",  
         header=0,  
         skipinitialspace=True,  
         encoding='utf8'  
     )
-    print("Raw file read successfully.")
+    print("Données sur la qualité de l'air importées avec succès.")
 except Exception as e:
-    print(f"Error reading the raw file: {e}")
+    print(f"Erreur lors de la lecture des données sur la qualité de l'air : {e}")
     exit(1)
 
-# Extraire les coordonnées à partir de la colonne "Coordinates"
+print(f'Téléchargement de la base de données des villes à: {world_cities_path}')
+
+try:
+    df_valid_cities = pd.read_csv(
+        world_cities_path,
+        encoding='utf8'  
+    )
+    print("Données des villes mondiales importées avec succès.")
+except Exception as e:
+    print(f"Erreur lors de la lecture des données des villes mondiales : {e}")
+    exit(1)
+
+#### Traitements des données
+
 if 'Coordinates' in data.columns:
     coord_data = data['Coordinates'].str.split(',', expand=True)
     if coord_data.shape[1] == 2:
@@ -33,7 +48,6 @@ else:
     exit(1)
 
 
-# Traitements des données
 data = data.dropna(subset=['Latitude', 'Longitude'])
 data=data.drop(columns="Coordinates")
 data=data.dropna(subset=['City','Country Label'])
@@ -46,25 +60,24 @@ data ["Last Updated"] = pd.to_datetime(data["Last Updated"], format='%Y-%m-%d', 
 data = data[data['Last Updated'].dt.year == 2024]
 
 data['City'] = data['City'].astype(str).str.title()
-df_valid_cities=pd.read_csv("world_cities_clean.csv")
-valid_cities = set(df_valid_cities['city'].str.strip().str.title())
+valid_cities = set(df_valid_cities['name'].str.strip().str.title())
 data['City'] = data['City'].str.strip().str.title()
 data = data[data['City'].isin(valid_cities)]
 
 
-# Conversion des unités de concentration
+##### Conversion des unités de concentration
 molar_masses = {
-    'O3': 48,     # Ozone
-    'CO': 28,     # Monoxyde de carbone
-    'NO2': 46,    # Dioxyde d'azote
-    'SO2': 64,    # Dioxyde de soufre
-    'PM10': None, # Particules (pas de conversion nécessaire)
-    'PM2.5': None,# Particules fines (pas de conversion nécessaire)
-    'NO': 30,     # Monoxyde d'azote
-    'NOX': 38     # Moyenne pondérée
+    'O3': 48,     
+    'CO': 28,     
+    'NO2': 46,    
+    'SO2': 64,    
+    'PM10': None, 
+    'PM2.5': None,
+    'NO': 30,     
+    'NOX': 38     
 }
 
-print("Converting 'Unit' to standard µg/m³ for comparison...")
+print("Convertit les unités de concentration en µg/m³ pour comparaison...")
 
 def convert_to_ugm3(row):
     """
@@ -77,21 +90,17 @@ def convert_to_ugm3(row):
     
     molar_mass = molar_masses.get(pollutant, None)
     
-    # Unité déjà en µg/m³ 
     if unit == 'µg/m³':
         return value, 'µg/m³'
     
-    # Unité en ppm
     elif unit == 'ppm' and molar_mass:
         converted_value = value * (molar_mass / 24.45)  
         return converted_value, 'µg/m³'
 
-    # Unité en ppb
     elif unit == 'ppb' and molar_mass:
         converted_value = value * (molar_mass / 24.45) / 1000 
         return converted_value, 'µg/m³'
 
-    # Unité non supportée
     else:
         return value, unit 
 
@@ -100,6 +109,7 @@ data[['Value', 'Unit']] = data.apply(
 )
 
 
+##### Exportation des données
 try:
     data.to_csv(processed_file_path, index=False)
     print(f"Données traitées sauvegardées dans {processed_file_path}")
