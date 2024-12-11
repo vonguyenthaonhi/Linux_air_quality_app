@@ -113,6 +113,16 @@ if options == "🏡 Accueil":
         ClimAventure !** 🚀
         """
     )
+    image_path = "../image/11zon_cropped.png"
+
+   
+    image = Image.open(image_path)
+    width, height = image.size
+    new_size = (width // 6, height // 6) 
+    resized_image = image.resize(new_size)
+    
+    st.image(resized_image, caption="ClimAventure - Air Quality", use_container_width=False)
+    
 elif options == "ℹ️ Info du moment":
     st.subheader(
         "Comme vous le savez, nos données sont régulièrement "
@@ -271,7 +281,21 @@ if selected_pollutant:
 
         st.pydeck_chart(deck)
         st.divider()
+                
+        pollutant_links = {
+                'O3': '[Ozone (O3) sur Wikipedia](https://fr.wikipedia.org/wiki/Ozone)',
+                'CO': '[Monoxyde de carbone (CO) sur Wikipedia](https://fr.wikipedia.org/wiki/Monoxyde_de_carbone)',
+                'NO2': '[Dioxyde d\'azote (NO2) sur Wikipedia](https://fr.wikipedia.org/wiki/Dioxyde_d\'azote)',
+                'SO2': '[Dioxyde de soufre (SO2) sur Wikipedia](https://fr.wikipedia.org/wiki/Dioxyde_de_soufre)',
+                'PM10': '[Particules PM10 sur Wikipedia](https://fr.wikipedia.org/wiki/Particules_en_suspension)',
+                'PM2.5': '[Particules PM2.5 sur Wikipedia](https://fr.wikipedia.org/wiki/Particules_en_suspension)',
+                'NO': '[Monoxyde d\'azote (NO) sur Wikipedia](https://fr.wikipedia.org/wiki/Monoxyde_d\'azote)',
+                'NOX': '[Oxydes d\'azote (NOX) sur Wikipedia](https://fr.wikipedia.org/wiki/Oxydes_d\'azote)',
+                'BC': '[Black Carbon (BC) sur Climate & Clean Air Coalition](https://www.ccacoalition.org/short-lived-climate-pollutants/black-carbon)'
+            }
 
+        st.markdown(f"Pour plus d'informations sur **{selected_pollutant}**, consultez : {pollutant_links.get(selected_pollutant, 'Aucune information disponible')}.")
+        
         st.subheader("Et si vous avez déjà une idée de la ville...")
         st.markdown("<p style='font-size:16px;'>Choisissez-la ici pour en savoir plus! 👇</p>",
         unsafe_allow_html=True
