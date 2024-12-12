@@ -1,4 +1,4 @@
-# ClimAdventure
+# ClimAdventure 🌍
 
 ClimAdventure est un outil interactif pour les voyageurs soucieux de leur santé et de l'environnement. 
 Cette application vous permet de choisir des destinations avec un air plus sain, d'adapter vos activités 
@@ -39,4 +39,5 @@ docker run -p 5001:5001 climaventure
 Cette commande démarre l'application, qui sera accessible via un lien externe généré par Docker
 
 ### Note
-Attention à bien supprimer vos conteneurs une fois l’app fermée
+
+Si vous voulez créer une nouvelle image docker et relancer l'application, faites attention à bien supprimer vos conteneurs une fois l’appliation est fermée
