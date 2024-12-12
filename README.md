@@ -37,3 +37,6 @@ Démarrez le conteneur Docker
 docker run -p 5001:5001 climaventure
 ```
 Cette commande démarre l'application, qui sera accessible via un lien externe généré par Docker
+
+# Note
+Attention à bien supprimer vos conteneurs une fois l’app fermée
