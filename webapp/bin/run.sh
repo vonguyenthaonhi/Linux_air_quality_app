@@ -9,10 +9,12 @@ cd "$WEBAPP_DIR/app" || {
 }
 
 if ! command -v streamlit &> /dev/null; then
-    echo "Erreur : Streamlit n'est pas installé. Veuillez l'installer avec 'pip install streamlit'."
+    echo "Erreur : Streamlit n'est pas installé."
+    echo "Veuillez l'installer avec 'pip install streamlit'."
     exit 1
 fi
 
-echo "@@@@@@@@@@@@@@@@ Run application... @@@@@@@@@@@@@@@@"
+echo "@@@@@@@ Run application... @@@@@@@"
 
 python -m streamlit run app.py --server.port 5001
+
