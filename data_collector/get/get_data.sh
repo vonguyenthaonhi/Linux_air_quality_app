@@ -9,12 +9,14 @@ OUTPUT_PATH_AIR="../../openaq_data.csv"
 OUTPUT_PATH_CITIES="../../world_cities.csv"
 
 if [ ! -d "$(dirname "$OUTPUT_PATH_AIR")" ]; then
-    echo "Erreur : Le répertoire $(dirname "$OUTPUT_PATH_AIR") n'existe pas."
+    echo "Erreur : Le répertoire $(dirname "$OUTPUT_PATH_AIR")"
+    echo "n'existe pas."
     exit 1
 fi
 
 if [ ! -d "$(dirname "$OUTPUT_PATH_CITIES")" ]; then
-    echo "Erreur : Le répertoire $(dirname "$OUTPUT_PATH_CITIES") n'existe pas."
+    echo "Erreur : Le répertoire $(dirname "$OUTPUT_PATH_CITIES")"
+    echo "n'existe pas."
     exit 1
 fi
 
@@ -24,7 +26,8 @@ curl -L -o "$OUTPUT_PATH_AIR" "$URL_AIR" || {
     exit 1
 }
 
-echo "Téléchargement terminé. Données enregistrées dans '$OUTPUT_PATH_AIR'."
+echo "Téléchargement terminé"
+echo "Données enregistrées dans '$OUTPUT_PATH_AIR'."
 
 echo "Téléchargement des données des villes depuis : $URL_CITIES"
 curl -L -o "$OUTPUT_PATH_CITIES" "$URL_CITIES" || {
@@ -32,4 +35,5 @@ curl -L -o "$OUTPUT_PATH_CITIES" "$URL_CITIES" || {
     exit 1
 }
 
-echo "Téléchargement terminé. Données enregistrées dans '$OUTPUT_PATH_CITIES'."
+echo "Téléchargement terminé."
+echo "Données enregistrées dans '$OUTPUT_PATH_CITIES'."
