@@ -40,4 +40,4 @@ Cette commande démarre l'application, qui sera accessible via un lien externe g
 
 ### Note
 
-Si vous voulez créer une nouvelle image docker et relancer l'application, faites attention à bien supprimer vos conteneurs une fois l’appliation est fermée
+Si vous voulez créer une nouvelle image docker et relancer l'application, faites attention à bien supprimer vos conteneurs une fois l’appliсation est fermée
