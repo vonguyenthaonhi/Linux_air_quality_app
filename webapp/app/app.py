@@ -327,7 +327,6 @@ elif options == "🗺️ Carte des polluants":
                 "Sélectionnez une ville :", options=cities
             )
 
-            # Mise à jour des valeurs de session pour le pays et la ville
             if selected_countries and selected_countries[0] != "All":
                 st.session_state["selected_country"] = (
                     selected_countries[0]
@@ -383,7 +382,6 @@ elif options == "📍 Infos touristiques de la ville":
         index=([None] + countries).index(default_country),
     )
 
-    # Filtrer les villes en fonction du pays sélectionné
     if selected_country:
         filtered_data = data[
             data["Country Label"] == selected_country
@@ -403,11 +401,10 @@ elif options == "📍 Infos touristiques de la ville":
         ),
     )
 
-    # Mettre à jour les valeurs sélectionnées dans la session
+
     st.session_state["selected_country"] = selected_country
     st.session_state["selected_city"] = selected_city
 
-    # Afficher les informations touristiques
     if selected_city and selected_country:
         st.write(
             f"Ville sélectionnée : **{selected_city}** ({selected_country})"
@@ -431,7 +428,6 @@ elif options == "📍 Infos touristiques de la ville":
                 )
                 page = wikipedia.page(selected_city)
 
-            # Filtrer les images pertinentes
             keywords = [
                 "landmark",
                 "skyline",
@@ -482,7 +478,6 @@ elif options == "📍 Infos touristiques de la ville":
                     use_container_width=True,
                 )
 
-            # Afficher le résumé et les liens utiles
             st.markdown(f"### À propos de {selected_city}")
             st.write(summary)
             st.markdown(
