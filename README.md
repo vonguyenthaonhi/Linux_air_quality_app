@@ -4,6 +4,8 @@ ClimAdventure est un outil interactif pour les voyageurs soucieux de leur santé
 Cette application vous permet de choisir des destinations avec un air plus sain, d'adapter vos activités 
 en fonction des niveaux de pollution, et de planifier des voyages informés et responsables.
 
+Auteures: VO Nguyen Thao Nhi, CRISTEA Carmen, CHEKALINA Alisa, GASPARIN Lia
+
 ## Description
 
 Planifiez vos voyages en respirant l'air du large !
