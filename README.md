@@ -41,3 +41,11 @@ Cette commande démarre l'application, qui sera accessible via un lien externe g
 ### Note
 
 Si vous voulez créer une nouvelle image docker et relancer l'application, faites attention à bien supprimer vos conteneurs une fois l’appliсation est fermée
+
+## Auteurs
+
+- [Alisa Chekalina](https://github.com/chekalisa)
+- [Lia Gasparin](https://github.com/LiaGasparin)
+- [Carmen Cristea](https://github.com/CarmenParis)
+- [Vo Nguyen Thao Nhi] (https://github.com/vonguyenthaonhi)
+
