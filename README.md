@@ -47,5 +47,5 @@ Si vous voulez créer une nouvelle image docker et relancer l'application, faite
 - [Alisa Chekalina](https://github.com/chekalisa)
 - [Lia Gasparin](https://github.com/LiaGasparin)
 - [Carmen Cristea](https://github.com/CarmenParis)
-- [Vo Nguyen Thao Nhi] (https://github.com/vonguyenthaonhi)
+- [Vo Nguyen Thao Nhi](https://github.com/vonguyenthaonhi)
 
